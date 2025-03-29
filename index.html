@@ -489,6 +489,40 @@
             };
         }
 
+        // Save state to localStorage
+        function saveState() {
+            try {
+                // Save eaten foods state
+                localStorage.setItem('foodTracker_eatenFoods', JSON.stringify(eatenFoods));
+                // Save active day
+                localStorage.setItem('foodTracker_activeDay', activeDay);
+                console.log('State saved to localStorage');
+            } catch (error) {
+                console.error('Failed to save state to localStorage:', error);
+            }
+        }
+
+        // Load state from localStorage
+        function loadState() {
+            try {
+                // Load eaten foods state
+                const savedEatenFoods = localStorage.getItem('foodTracker_eatenFoods');
+                if (savedEatenFoods) {
+                    eatenFoods = JSON.parse(savedEatenFoods);
+                }
+                
+                // Load active day
+                const savedActiveDay = localStorage.getItem('foodTracker_activeDay');
+                if (savedActiveDay && days[savedActiveDay]) {
+                    activeDay = savedActiveDay;
+                }
+                
+                console.log('State loaded from localStorage');
+            } catch (error) {
+                console.error('Failed to load state from localStorage:', error);
+            }
+        }
+
         // Toggle food as eaten/not eaten
         function toggleFood(day, foodId) {
             const food = days[day].foods.find(f => f.id === foodId);
@@ -513,6 +547,9 @@
                 };
             }
             
+            // Save state to localStorage
+            saveState();
+            
             // Use the debounced render function
             debouncedRenderActiveDay();
         }
@@ -535,6 +572,9 @@
                 eaten: newEaten,
                 currentQuantity: newQuantity
             };
+            
+            // Save state to localStorage
+            saveState();
             
             // Use the debounced render function
             debouncedRenderActiveDay();
@@ -709,7 +749,7 @@
                 foodTable.appendChild(tr);
             });
             
-                            // Add event listeners for all buttons after the table is rendered
+            // Add event listeners for all buttons after the table is rendered
             document.querySelectorAll('.btn-icon[data-food-id]:not([data-action])').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation(); // Stop the event from bubbling to the row
@@ -818,6 +858,9 @@
         function switchDay(day) {
             activeDay = day;
             
+            // Save active day to localStorage
+            localStorage.setItem('foodTracker_activeDay', activeDay);
+            
             // Update active tab
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 if (btn.dataset.day === day) {
@@ -838,6 +881,19 @@
         });
 
         // Initialize the app
+        // Load state from localStorage
+        loadState();
+
+        // Update the active tab based on the loaded state
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.dataset.day === activeDay) {
+                btn.classList.add('active-tab');
+            } else {
+                btn.classList.remove('active-tab');
+            }
+        });
+
+        // Render the active day
         renderActiveDay();
     </script>
 </body>
