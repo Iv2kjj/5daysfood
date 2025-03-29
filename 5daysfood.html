@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Day Food Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Additional custom styles */
+        .progress {
+            height: 0.5rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .progress-h4 {
+            height: 1rem;
+        }
+
+        .progress-bar-fat {
+            background-color: #fef3c7;
+        }
+
+        .progress-bar-protein {
+            background-color: #fee2e2;
+        }
+
+        .progress-bar-carbs {
+            background-color: #dbeafe;
+        }
+
+        .progress-bar-gray {
+            background-color: #e5e7eb;
+        }
+
+        .btn-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+
+        .active-tab {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        tr.eaten-full {
+            background-color: #bbf7d0;
+            font-weight: 500;
+        }
+
+        tr.eaten-partial {
+            background-color: #fef3c7;
+            font-weight: 500;
+        }
+
+        tr.odd {
+            background-color: #f9fafb;
+        }
+
+        tr.even {
+            background-color: #ffffff;
+        }
+
+        tr:hover {
+            background-color: #eff6ff;
+            transition: background-color 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="w-full max-w-4xl mx-auto bg-white rounded-md shadow-md overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-50 p-4">
+            <h1 class="text-center text-xl font-bold">5-Day Food Tracker</h1>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-gray-600 mt-2">
+                <div>Age: 36</div>
+                <div>Gender: Male</div>
+                <div>Weight: 168.5 lbs</div>
+                <div>Height: 5' 11"</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab-list grid grid-cols-5 w-full">
+                <button class="tab-btn py-2 active-tab" data-day="day1">Day 1</button>
+                <button class="tab-btn py-2" data-day="day2">Day 2</button>
+                <button class="tab-btn py-2" data-day="day3">Day 3</button>
+                <button class="tab-btn py-2" data-day="day4">Day 4</button>
+                <button class="tab-btn py-2" data-day="day5">Day 5</button>
+            </div>
+
+            <div class="tab-content p-4">
+                <!-- Tab content will be filled by JavaScript -->
+                <h3 class="font-bold text-lg mb-4" id="day-title">Day 1 Food Log</h3>
+                
+                <div class="space-y-4">
+                    <div class="border rounded-md overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Food Item</th>
+                                    <th class="px-4 py-2 text-center">Eaten</th>
+                                    <th class="px-4 py-2 text-center">Quantity</th>
+                                    <th class="px-4 py-2 text-right">Fat (g)</th>
+                                    <th class="px-4 py-2 text-right">Protein (g)</th>
+                                    <th class="px-4 py-2 text-right">Carbs (g)</th>
+                                    <th class="px-4 py-2 text-right">Calories</th>
+                                </tr>
+                            </thead>
+                            <tbody id="food-table">
+                                <!-- Food items will be filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border rounded-md p-4">
+                            <h4 class="font-bold mb-2">Maintenance Limit Progress</h4>
+                            <div class="mb-1 flex justify-between text-sm">
+                                <span id="calories-consumed">0 calories consumed</span>
+                                <span>1900 cal limit</span>
+                            </div>
+                            <div class="progress progress-h4">
+                                <div class="progress-bar" id="calories-progress" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm">
+                                <span class="text-gray-600" id="calories-percentage">
+                                    0 / 1900 calories (0% of limit)
+                                </span>
+                                <span class="font-medium text-red-600" id="calories-remaining">
+                                    1900 remaining
+                                </span>
+                            </div>
+                            
+                            <!-- Planned vs Consumed -->
+                            <div class="mt-4">
+                                <h5 class="font-medium text-sm mb-2">Planned vs Consumed</h5>
+                                <div class="mb-1 flex justify-between text-sm">
+                                    <span id="calories-consumed-2">0 calories consumed</span>
+                                    <span id="calories-planned">0 cal planned</span>
+                                </div>
+                                <div class="progress progress-h4">
+                                    <div class="progress-bar progress-bar-gray" id="planned-progress" style="width: 0%"></div>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-600" id="planned-percentage">
+                                    0% of planned calories consumed
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="border rounded-md p-4">
+                            <h4 class="font-bold mb-2">Macronutrient Breakdown</h4>
+                            <div id="macro-content">
+                                <div class="space-y-2">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span id="fat-percentage">Fat (0%)</span>
+                                            <span id="fat-grams">0g</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-fat" id="fat-progress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span id="protein-percentage">Protein (0%)</span>
+                                            <span id="protein-grams">0g</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-protein" id="protein-progress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span id="carbs-percentage">Carbs (0%)</span>
+                                            <span id="carbs-grams">0g</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-carbs" id="carbs-progress" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-sm">
+                                        <p><span class="font-medium">Net Carbs:</span> <span id="net-carbs">0g</span></p>
+                                        <p><span class="font-medium">Fiber:</span> <span id="fiber-grams">0g</span></p>
+                                        <p><span class="font-medium">Sugar:</span> <span id="sugar-grams">0g</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-md p-4 bg-amber-50">
+                        <h4 class="font-bold mb-2">Nutrition Analysis</h4>
+                        <div id="nutrition-analysis">
+                            <p class="text-sm">Mark foods as eaten to see your nutrition analysis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User info
+        const userInfo = {
+            age: 36,
+            gender: 'Male',
+            weight: '168.5 lbs',
+            height: '5\' 11"',
+            dailyCalories: 1900 // Maintenance limit
+        };
+
+        // Food nutrition data
+        const foodData = {
+            proteinBar: {
+                id: 'proteinBar',
+                name: 'Pure Protein Chocolate Deluxe Bar',
+                calories: 180,
+                fat: 4.5,
+                protein: 21,
+                carbs: 17,
+                fiber: 2,
+                sugar: 3,
+                quantity: 1,
+                maxQuantity: 1
+            },
+            proteinBar2: {
+                id: 'proteinBar2',
+                name: 'Pure Protein Chocolate Deluxe Bar (2)',
+                calories: 360,
+                fat: 9,
+                protein: 42,
+                carbs: 34,
+                fiber: 4,
+                sugar: 6,
+                quantity: 2,
+                maxQuantity: 2,
+                step: 1,
+                baseItem: 'proteinBar'
+            },
+            proteinShake: {
+                id: 'proteinShake',
+                name: 'Gold Standard Protein Shake - Vanilla',
+                calories: 130,
+                fat: 3,
+                protein: 24,
+                carbs: 3,
+                fiber: 1,
+                sugar: 1,
+                quantity: 1,
+                maxQuantity: 1
+            },
+            multigrainRoll: {
+                id: 'multigrainRoll',
+                name: 'Whole Foods Market Multigrain Roll',
+                calories: 190,
+                fat: 6,
+                protein: 6,
+                carbs: 27,
+                fiber: 3,
+                sugar: 2,
+                quantity: 1,
+                maxQuantity: 1
+            },
+            multigrainRolls2: {
+                id: 'multigrainRolls2',
+                name: 'Whole Foods Market Multigrain Rolls (2)',
+                calories: 380,
+                fat: 12,
+                protein: 12,
+                carbs: 54,
+                fiber: 6,
+                sugar: 4,
+                quantity: 2,
+                maxQuantity: 2,
+                step: 1,
+                baseItem: 'multigrainRoll'
+            },
+            chickenStrips: {
+                id: 'chickenStrips',
+                name: '365 Whole Foods Market Grilled Chicken Breast Strips (pack)',
+                calories: 360,
+                fat: 8,
+                protein: 68,
+                carbs: 4,
+                fiber: 0,
+                sugar: 0,
+                quantity: 1,
+                maxQuantity: 1
+            },
+            darkChocolate: {
+                id: 'darkChocolate',
+                name: 'Hu Vanilla Crunch Dark Chocolate (1/4 bar)',
+                calories: 45,
+                fat: 6.5,
+                protein: 1,
+                carbs: 7,
+                fiber: 1,
+                sugar: 4,
+                quantity: 0.25,
+                maxQuantity: 0.25,
+                step: 0.25
+            },
+            wholeEgg: {
+                id: 'wholeEgg',
+                name: 'Whole Egg',
+                calories: 70,
+                fat: 5,
+                protein: 6,
+                carbs: 0,
+                fiber: 0,
+                sugar: 0,
+                quantity: 1,
+                maxQuantity: 1
+            },
+            eggWhite: {
+                id: 'eggWhite',
+                name: 'Egg White',
+                calories: 25,
+                fat: 0,
+                protein: 5,
+                carbs: 0,
+                fiber: 0,
+                sugar: 0,
+                quantity: 1,
+                maxQuantity: 1
+            },
+            medBlend: {
+                id: 'medBlend',
+                name: '365 Organic Mediterranean Blend (1/2 bag)',
+                calories: 63,
+                fat: 0,
+                protein: 2.5,
+                carbs: 12.5,
+                fiber: 5,
+                sugar: 5,
+                quantity: 0.5,
+                maxQuantity: 0.5,
+                step: 0.25
+            },
+            salmon: {
+                id: 'salmon',
+                name: 'Changing Seas Premium Seafood Smoked Salmon (4 servings)',
+                calories: 400,
+                fat: 20,
+                protein: 48,
+                carbs: 0,
+                fiber: 0,
+                sugar: 0,
+                quantity: 4,
+                maxQuantity: 4,
+                step: 1
+            },
+            peaches: {
+                id: 'peaches',
+                name: '365 Organic Sliced Peaches (full bag)',
+                calories: 350,
+                fat: 0,
+                protein: 7,
+                carbs: 91,
+                fiber: 14,
+                sugar: 70,
+                quantity: 1,
+                maxQuantity: 1,
+                step: 0.25
+            }
+        };
+
+        // Daily meal plans
+        const days = {
+            day1: {
+                title: 'Day 1',
+                foods: [
+                    foodData.proteinBar,
+                    foodData.proteinShake,
+                    foodData.multigrainRolls2,
+                    foodData.chickenStrips,
+                    foodData.darkChocolate,
+                    foodData.wholeEgg,
+                    foodData.eggWhite,
+                    foodData.medBlend
+                ]
+            },
+            day2: {
+                title: 'Day 2',
+                foods: [
+                    foodData.proteinBar2,
+                    foodData.proteinShake,
+                    foodData.salmon,
+                    foodData.multigrainRoll,
+                    foodData.wholeEgg,
+                    foodData.eggWhite,
+                    foodData.peaches
+                ]
+            },
+            day3: {
+                title: 'Day 3',
+                foods: [
+                    foodData.proteinBar,
+                    foodData.proteinShake,
+                    foodData.multigrainRolls2,
+                    foodData.chickenStrips,
+                    foodData.darkChocolate,
+                    foodData.wholeEgg,
+                    foodData.eggWhite,
+                    foodData.medBlend
+                ]
+            },
+            day4: {
+                title: 'Day 4',
+                foods: [
+                    foodData.proteinBar2,
+                    foodData.proteinShake,
+                    foodData.salmon,
+                    foodData.multigrainRoll,
+                    foodData.wholeEgg,
+                    foodData.eggWhite,
+                    foodData.peaches
+                ]
+            },
+            day5: {
+                title: 'Day 5',
+                foods: [
+                    foodData.proteinBar,
+                    foodData.proteinShake,
+                    foodData.multigrainRolls2,
+                    foodData.chickenStrips,
+                    foodData.darkChocolate,
+                    foodData.wholeEgg,
+                    foodData.eggWhite,
+                    foodData.medBlend
+                ]
+            }
+        };
+
+        // Initialize food state
+        const initializeFoodState = (dayFoods) => {
+            const state = {};
+            dayFoods.forEach(food => {
+                state[food.id] = {
+                    eaten: false,
+                    currentQuantity: 0
+                };
+            });
+            return state;
+        };
+
+        // State for tracking eaten foods for each day
+        let eatenFoods = {
+            day1: initializeFoodState(days.day1.foods),
+            day2: initializeFoodState(days.day2.foods),
+            day3: initializeFoodState(days.day3.foods),
+            day4: initializeFoodState(days.day4.foods),
+            day5: initializeFoodState(days.day5.foods)
+        };
+
+        // Current active day
+        let activeDay = 'day1';
+
+        // Toggle food as eaten/not eaten
+        function toggleFood(day, foodId) {
+            const food = days[day].foods.find(f => f.id === foodId);
+            const foodState = eatenFoods[day][foodId];
+            
+            // If toggling from not eaten to eaten, set to max quantity
+            // If toggling from eaten to not eaten, set to 0
+            const newQuantity = !foodState.eaten ? food.quantity : 0;
+            
+            eatenFoods[day][foodId] = {
+                eaten: !foodState.eaten,
+                currentQuantity: newQuantity
+            };
+            
+            renderActiveDay();
+        }
+
+        // Adjust food quantity
+        function adjustQuantity(day, foodId, adjustment) {
+            const food = days[day].foods.find(f => f.id === foodId);
+            const foodState = eatenFoods[day][foodId];
+            const step = food.step || 1;
+            
+            let newQuantity = foodState.currentQuantity + (adjustment * step);
+            
+            // Ensure quantity stays within bounds
+            newQuantity = Math.max(0, Math.min(food.maxQuantity, newQuantity));
+            
+            // If new quantity is 0, mark as not eaten
+            const newEaten = newQuantity > 0;
+            
+            eatenFoods[day][foodId] = {
+                eaten: newEaten,
+                currentQuantity: newQuantity
+            };
+            
+            renderActiveDay();
+        }
+
+        // Calculate daily totals based on eaten foods
+        function calculateDailyTotals(day) {
+            return days[day].foods.reduce((totals, food) => {
+                const foodState = eatenFoods[day][food.id];
+                
+                if (!foodState.eaten) return totals;
+                
+                const ratio = foodState.currentQuantity / food.quantity;
+                
+                return {
+                    calories: totals.calories + (food.calories * ratio),
+                    fat: totals.fat + (food.fat * ratio),
+                    protein: totals.protein + (food.protein * ratio),
+                    carbs: totals.carbs + (food.carbs * ratio),
+                    fiber: totals.fiber + (food.fiber * ratio),
+                    sugar: totals.sugar + (food.sugar * ratio)
+                };
+            }, { calories: 0, fat: 0, protein: 0, carbs: 0, fiber: 0, sugar: 0 });
+        }
+
+        // Calculate planned daily totals (original plan, all foods)
+        function calculatePlannedTotals(day) {
+            return days[day].foods.reduce((totals, food) => {
+                return {
+                    calories: totals.calories + food.calories,
+                    fat: totals.fat + food.fat,
+                    protein: totals.protein + food.protein,
+                    carbs: totals.carbs + food.carbs,
+                    fiber: totals.fiber + food.fiber,
+                    sugar: totals.sugar + food.sugar
+                };
+            }, { calories: 0, fat: 0, protein: 0, carbs: 0, fiber: 0, sugar: 0 });
+        }
+
+        // Calculate macro percentages
+        function calculateMacroPercentages(totals) {
+            const totalCaloriesFromMacros = totals.fat * 9 + totals.protein * 4 + totals.carbs * 4;
+            
+            if (totalCaloriesFromMacros === 0) {
+                return { fat: 0, protein: 0, carbs: 0 };
+            }
+            
+            return {
+                fat: Math.round((totals.fat * 9 / totalCaloriesFromMacros) * 100),
+                protein: Math.round((totals.protein * 4 / totalCaloriesFromMacros) * 100),
+                carbs: Math.round((totals.carbs * 4 / totalCaloriesFromMacros) * 100)
+            };
+        }
+
+        // Helper function to format quantities
+        function formatQuantity(food, currentQuantity) {
+            if (food.step && food.step < 1) {
+                // For fractional quantities like 0.25, 0.5, etc.
+                return currentQuantity.toFixed(2).replace(/\.00$/, '');
+            }
+            return currentQuantity;
+        }
+
+        // Render the active day's content
+        function renderActiveDay() {
+            // Set day title
+            document.getElementById('day-title').textContent = `${days[activeDay].title} Food Log`;
+            
+            // Calculate totals
+            const dailyTotals = calculateDailyTotals(activeDay);
+            const plannedTotals = calculatePlannedTotals(activeDay);
+            const macroPercentages = calculateMacroPercentages(dailyTotals);
+            
+            // Render food table
+            const foodTable = document.getElementById('food-table');
+            foodTable.innerHTML = '';
+            
+            // Add food rows
+            days[activeDay].foods.forEach((food, index) => {
+                const foodState = eatenFoods[activeDay][food.id];
+                const ratio = foodState.eaten ? foodState.currentQuantity / food.quantity : 0;
+                
+                const tr = document.createElement('tr');
+                
+                // Set row class based on eaten status
+                if (!foodState.eaten) {
+                    tr.className = index % 2 === 0 ? 'even' : 'odd';
+                } else {
+                    tr.className = foodState.currentQuantity < food.maxQuantity ? 'eaten-partial' : 'eaten-full';
+                }
+                
+                tr.onclick = () => toggleFood(activeDay, food.id);
+                
+                tr.innerHTML = `
+                    <td class="px-4 py-2 text-left">
+                        ${food.name}
+                        <div class="text-xs text-gray-500">
+                            ${food.fiber > 0 ? `${food.fiber}g fiber, ` : ''}
+                            ${food.sugar > 0 ? `${food.sugar}g sugar` : ''}
+                        </div>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <button 
+                            class="btn-icon ${foodState.eaten ? 'bg-green-500 text-white' : 'bg-gray-200'}"
+                            onclick="event.stopPropagation(); toggleFood('${activeDay}', '${food.id}')"
+                        >
+                            ${foodState.eaten ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                        </button>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button 
+                                class="btn-icon ${foodState.currentQuantity > 0 ? 'bg-blue-500 text-white' : 'bg-gray-200'}"
+                                onclick="event.stopPropagation(); adjustQuantity('${activeDay}', '${food.id}', -1)"
+                                ${foodState.currentQuantity <= 0 ? 'disabled' : ''}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                            
+                            <span class="w-8 text-center">
+                                ${formatQuantity(food, foodState.currentQuantity)}
+                            </span>
+                            
+                            <button 
+                                class="btn-icon ${foodState.currentQuantity < food.maxQuantity ? 'bg-blue-500 text-white' : 'bg-gray-200'}"
+                                onclick="event.stopPropagation(); adjustQuantity('${activeDay}', '${food.id}', 1)"
+                                ${foodState.currentQuantity >= food.maxQuantity ? 'disabled' : ''}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-2 text-right">
+                        ${foodState.eaten ? (food.fat * ratio).toFixed(1) : '0'}
+                    </td>
+                    <td class="px-4 py-2 text-right">
+                        ${foodState.eaten ? (food.protein * ratio).toFixed(1) : '0'}
+                    </td>
+                    <td class="px-4 py-2 text-right">
+                        ${foodState.eaten ? (food.carbs * ratio).toFixed(1) : '0'}
+                    </td>
+                    <td class="px-4 py-2 text-right">
+                        ${foodState.eaten ? Math.round(food.calories * ratio) : '0'}
+                    </td>
+                `;
+                
+                foodTable.appendChild(tr);
+            });
+            
+            // Add total rows
+            const dailyTotalRow = document.createElement('tr');
+            dailyTotalRow.className = 'bg-blue-100 font-bold';
+            dailyTotalRow.innerHTML = `
+                <td class="px-4 py-2 text-left" colspan="3">Daily Total (Consumed)</td>
+                <td class="px-4 py-2 text-right">${dailyTotals.fat.toFixed(1)}</td>
+                <td class="px-4 py-2 text-right">${dailyTotals.protein.toFixed(1)}</td>
+                <td class="px-4 py-2 text-right">${dailyTotals.carbs.toFixed(1)}</td>
+                <td class="px-4 py-2 text-right">${Math.round(dailyTotals.calories)}</td>
+            `;
+            foodTable.appendChild(dailyTotalRow);
+            
+            const plannedTotalRow = document.createElement('tr');
+            plannedTotalRow.className = 'bg-gray-100';
+            plannedTotalRow.innerHTML = `
+                <td class="px-4 py-2 text-left" colspan="3">Daily Total (Planned)</td>
+                <td class="px-4 py-2 text-right">${plannedTotals.fat.toFixed(1)}</td>
+                <td class="px-4 py-2 text-right">${plannedTotals.protein.toFixed(1)}</td>
+                <td class="px-4 py-2 text-right">${plannedTotals.carbs.toFixed(1)}</td>
+                <td class="px-4 py-2 text-right">${Math.round(plannedTotals.calories)}</td>
+            `;
+            foodTable.appendChild(plannedTotalRow);
+            
+            // Update maintenance limit progress
+            const caloriesConsumed = Math.round(dailyTotals.calories);
+            const caloriesPercentage = Math.round((dailyTotals.calories / userInfo.dailyCalories) * 100);
+            
+            document.getElementById('calories-consumed').textContent = `${caloriesConsumed} calories consumed`;
+            document.getElementById('calories-progress').style.width = `${caloriesPercentage}%`;
+            document.getElementById('calories-percentage').textContent = 
+                `${caloriesConsumed} / ${userInfo.dailyCalories} calories (${caloriesPercentage}% of limit)`;
+            document.getElementById('calories-remaining').textContent = 
+                `${Math.max(0, userInfo.dailyCalories - caloriesConsumed)} remaining`;
+            
+            // Update planned vs consumed
+            const plannedCalories = Math.round(plannedTotals.calories);
+            const plannedPercentage = plannedCalories > 0 ? 
+                Math.round((dailyTotals.calories / plannedTotals.calories) * 100) : 0;
+            
+            document.getElementById('calories-consumed-2').textContent = `${caloriesConsumed} calories consumed`;
+            document.getElementById('calories-planned').textContent = `${plannedCalories} cal planned`;
+            document.getElementById('planned-progress').style.width = `${plannedPercentage}%`;
+            document.getElementById('planned-percentage').textContent = 
+                `${plannedPercentage}% of planned calories consumed`;
+            
+            // Update macronutrient breakdown
+            document.getElementById('fat-percentage').textContent = `Fat (${macroPercentages.fat}%)`;
+            document.getElementById('fat-grams').textContent = `${dailyTotals.fat.toFixed(1)}g`;
+            document.getElementById('fat-progress').style.width = `${macroPercentages.fat}%`;
+            
+            document.getElementById('protein-percentage').textContent = `Protein (${macroPercentages.protein}%)`;
+            document.getElementById('protein-grams').textContent = `${dailyTotals.protein.toFixed(1)}g`;
+            document.getElementById('protein-progress').style.width = `${macroPercentages.protein}%`;
+            
+            document.getElementById('carbs-percentage').textContent = `Carbs (${macroPercentages.carbs}%)`;
+            document.getElementById('carbs-grams').textContent = `${dailyTotals.carbs.toFixed(1)}g`;
+            document.getElementById('carbs-progress').style.width = `${macroPercentages.carbs}%`;
+            
+            document.getElementById('net-carbs').textContent = `${(dailyTotals.carbs - dailyTotals.fiber).toFixed(1)}g`;
+            document.getElementById('fiber-grams').textContent = `${dailyTotals.fiber.toFixed(1)}g`;
+            document.getElementById('sugar-grams').textContent = `${dailyTotals.sugar.toFixed(1)}g`;
+            
+            // Update nutrition analysis
+            const analysisEl = document.getElementById('nutrition-analysis');
+            if (dailyTotals.calories > 0) {
+                analysisEl.innerHTML = `
+                    <ul class="list-disc pl-5 space-y-1 text-sm">
+                        <li>You've consumed ${Math.round(dailyTotals.calories)} calories (${Math.round((dailyTotals.calories / userInfo.dailyCalories) * 100)}% of your maintenance limit).</li>
+                        <li>Protein intake is ${dailyTotals.protein.toFixed(1)}g (${(dailyTotals.protein / 168.5 * 2.2).toFixed(1)}g/kg body weight).</li>
+                        <li>You have ${Math.round(plannedTotals.calories - dailyTotals.calories)} calories remaining in your planned meals.</li>
+                    </ul>
+                `;
+            } else {
+                analysisEl.innerHTML = `<p class="text-sm">Mark foods as eaten to see your nutrition analysis.</p>`;
+            }
+        }
+
+        // Switch between days
+        function switchDay(day) {
+            activeDay = day;
+            
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.day === day) {
+                    btn.classList.add('active-tab');
+                } else {
+                    btn.classList.remove('active-tab');
+                }
+            });
+            
+            renderActiveDay();
+        }
+
+        // Add event listeners to tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchDay(btn.dataset.day);
+            });
+        });
+
+        // Initialize the app
+        renderActiveDay();
+    </script>
+</body>
+</html>v
